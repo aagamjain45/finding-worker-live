@@ -121,19 +121,95 @@ npm run dev
 | `VITE_DEMO_MODE` | `true` for mock data, `false` for real backend |
 | `VITE_API_URL` | Backend URL (e.g., `https://your-backend.onrender.com`) |
 
-## Deployment
+## Deployment Guide
 
-### Frontend → Vercel
-1. Import the `frontend/` directory on [Vercel](https://vercel.com)
-2. Set environment variables: `VITE_DEMO_MODE=false`, `VITE_API_URL=<backend-url>`
-3. Framework preset: Vite
+### Step 1: Push Code to GitHub
 
-### Backend → Render
-1. Create a new **Web Service** on [Render](https://render.com)
-2. Point to `finding-worker-release/` with Docker
-3. Set all required environment variables
-4. Add a MySQL database (or use external provider)
+Create a new repository on your GitHub account (e.g., `finding-worker`) and run:
+
+```bash
+git remote add origin https://github.com/aagamjain45/finding-worker.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+### Step 2: Database Setup (Cloud MySQL)
+
+Render runs web services but does not offer free managed MySQL. You can use any free MySQL provider:
+- **[Aiven for MySQL](https://aiven.io)** (Free tier available)
+- **[Clever Cloud](https://www.clever-cloud.com)** (Free MySQL add-on)
+- **[TiDB Cloud](https://tidbcloud.com)** (Free serverless MySQL-compatible tier)
+
+Save your database connection details:
+- Host, Port, Database name
+- Username & Password
+- JDBC URL format: `jdbc:mysql://<host>:<port>/<dbname>?sslmode=require`
+
+---
+
+### Step 3: Backend Deployment (Render)
+
+1. Sign in to [Render](https://render.com) using **Continue with GitHub**.
+2. Click **New +** → **Blueprint** (or **Web Service**).
+   - If using **Blueprint**: Select your `finding-worker` repo. Render reads `render.yaml` automatically.
+   - If using **Web Service**:
+     - Connect your `finding-worker` repository.
+     - **Root Directory**: `finding-worker-release`
+     - **Runtime**: `Docker`
+     - **Dockerfile Path**: `Dockerfile`
+     - **Docker Build Context**: `.`
+3. Set Environment Variables in Render:
+
+| Variable | Recommended Value | Note |
+|----------|-------------------|------|
+| `DB_URL` | `jdbc:mysql://<host>:<port>/<dbname>?sslmode=require` | Your cloud MySQL JDBC URL |
+| `DB_USERNAME` | `<username>` | Database username |
+| `DB_PASSWORD` | `<password>` | Database password |
+| `GOOGLE_CLIENT_ID` | `<client-id>.apps.googleusercontent.com` | From Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | `<client-secret>` | From Google Cloud Console |
+| `FRONTEND_URL` | `https://<your-vercel-app>.vercel.app` | **Do NOT include a trailing slash!** |
+| `SESSION_COOKIE_SAME_SITE` | `none` | Required for cross-site / proxied cookies |
+| `SESSION_COOKIE_SECURE` | `true` | Required for HTTPS |
+| `JPA_SHOW_SQL` | `false` | Disable noisy logs in production |
+
+4. Deploy the service. Your backend URL will be:
+   `https://finding-worker-backend.onrender.com` (or the URL assigned by Render).
+
+---
+
+### Step 4: Google OAuth 2.0 Configuration
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+2. Under **OAuth 2.0 Client IDs**, select your web client.
+3. Add to **Authorized JavaScript origins**:
+   - `https://<your-vercel-app>.vercel.app`
+4. Add to **Authorized redirect URIs**:
+   - `https://<your-vercel-app>.vercel.app/login/oauth2/code/google`
+5. Save changes.
+
+---
+
+### Step 5: Frontend Deployment (Vercel)
+
+1. Sign in to [Vercel](https://vercel.com) using **Continue with GitHub**.
+2. Click **Add New…** → **Project**, and import your `finding-worker` repository.
+3. Configure the project:
+   - **Framework Preset**: Vite
+   - **Root Directory**: Click `Edit` and select `frontend`
+4. Add Environment Variables:
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `VITE_DEMO_MODE` | `false` | Enables real backend integration |
+| `VITE_API_URL` | *(leave empty)* | Leaving this empty allows `vercel.json` rewrites to proxy all requests same-origin, avoiding third-party cookie restrictions! |
+
+*(Note: If your Render URL is different from `https://finding-worker-backend.onrender.com`, update the destination URLs in `frontend/vercel.json` and push to GitHub).*
+
+5. Click **Deploy**. Your app is now live!
 
 ## License
 
 MIT
+
