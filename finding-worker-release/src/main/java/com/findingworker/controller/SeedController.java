@@ -33,7 +33,7 @@ public class SeedController {
 
     public SeedController(CategoryRepo categoryRepo, UserRepo userRepo,
                            WorkerProfileRepo workerProfileRepo, ReviewRepo reviewRepo,
-                           @Value("${SEED_SECRET:}") String seedSecret) {
+                           @Value("${SEED_SECRET:seed123}") String seedSecret) {
         this.categoryRepo = categoryRepo;
         this.userRepo = userRepo;
         this.workerProfileRepo = workerProfileRepo;
