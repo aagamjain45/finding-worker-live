@@ -43,6 +43,8 @@ frontend/.env.local
 .env
 .env.local
 .env.*.local
+seed-data.sql
+frontend/insert*.js
 
 ### OS ###
 .DS_Store
