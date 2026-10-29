@@ -128,7 +128,7 @@ npm run dev
 Create a new repository on your GitHub account (e.g., `finding-worker`) and run:
 
 ```bash
-git remote add origin https://github.com/aagamjain45/finding-worker.git
+git remote add origin https://github.com/aagamjain45/finding-worker-live.git
 git branch -M main
 git push -u origin main
 ```
