@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/oauth2/**", "/login/**", "/internal/seed/**")
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/oauth2/**", "/login/**",
+                        .requestMatchers("/", "/error", "/login", "/oauth2/**", "/login/**",
                                 "/css/**", "/js/**", "/images/**", "/csrf", "/internal/seed/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/profile/complete").authenticated()
